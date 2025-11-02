@@ -119,7 +119,7 @@
             font-size: 0.875rem;
         }
 
-        /* AI avatar pulse ring */
+        /* AI avatar "thinking" pulse ring */
         @keyframes pulseRing {
             0%   { box-shadow: 0 0 8px 2px rgba(34,211,238,0.6); opacity: 1; }
             70%  { box-shadow: 0 0 20px 8px rgba(34,211,238,0); opacity: 0; }
@@ -127,6 +127,19 @@
         }
         .ai-thinking {
             animation: pulseRing 1.5s infinite;
+        }
+        
+        /* AI avatar "speaking" pulse shadow */
+        @keyframes pulseShadow {
+            0%, 100% { box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.3); }
+            50% { box-shadow: 0 0 16px 6px rgba(34, 211, 238, 0.7); }
+        }
+        .ai-speaking {
+            animation: pulseShadow 1.2s ease-in-out infinite;
+        }
+        #ai-avatar-img {
+             box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.0);
+             transition: box-shadow 0.3s ease;
         }
 
         /* Ambient glow behind chatbot */
@@ -481,9 +494,9 @@
                 <p class="mt-4 text-lg text-cyan-400">Examples of my work.</p>
             </div>
             <div class="mt-12 max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-                <!-- Project: CV API -->
+                <!-- Project: CV API (Linked from Experience) -->
                 <div id="project-cv-api" class="bg-slate-800 p-0 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=CV+Inference+API" alt="Project Thumbnail" class="rounded-t-lg">
+                    <img src="httpspro-skills-AhmadMakki.png" alt="Project Thumbnail" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">Real-time CV Inference API</h3>
                         <p class="text-slate-300 mt-3 flex-grow">
@@ -521,7 +534,7 @@
                 </div>
                 <!-- Project 2 -->
                 <div class="bg-slate-800 p-0 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=RAG+PDF+Query" alt="Project Thumbnail" class="rounded-t-lg">
+                    <img src="httpsRAG-AhmadMakki.png" alt="Project Thumbnail" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">Deployment of RAG-based PDF Query System</h3>
                         <p class="text-slate-300 mt-3 flex-grow">
@@ -683,7 +696,6 @@
                     </div>
                     <span class="text-sm font-medium text-cyan-400 opacity-0 group-hover:opacity-100 transition-all">&rarr;</span>
                 </a>
-
                  <!-- Certification Item -->
                  <a href="#" target="_blank" rel="noopener noreferrer" class="group bg-slate-800/50 p-4 rounded-lg shadow-lg flex items-center gap-4 hover:bg-slate-800 transition-all transform hover:scale-[1.03] border border-slate-700/50 hover:shadow-cyan-500/20">
                     <img src="https://placehold.co/40x40/0e7490/e0f2fe?text=HR" alt="HackerRank Logo" class="rounded-md">
@@ -700,7 +712,7 @@
         <section id="posts" class="py-16 md:py-24 bg-slate-800/50 rounded-2xl border border-slate-700/50">
             <div class="text-center">
                 <h2 class="text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">Recent Thoughts</h2>
-            <p class="mt-4 text-lg text-cyan-400">I'm an active thinker in the AI space.</p>
+                <p class="mt-4 text-lg text-cyan-400">I'm an active thinker in the AI space.</p>
             </div>
             <div class="mt-12 max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
                 <!-- Post 1 -->
@@ -867,9 +879,8 @@
                 <div class="flex items-center gap-3">
                     <!-- AI avatar bubble -->
                     <div id="ai-avatar" class="relative">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-slate-900 font-bold text-xs shadow-lg">
-                            AI
-                        </div>
+                        <!-- Replaced 'AI' div with your image -->
+                        <img id="ai-avatar-img" src="Ahmad_Makki_Pic.jpeg" alt="Ahmad Makki Avatar" class="w-8 h-8 rounded-full object-cover">
                         <!-- pulsing ring -->
                         <div id="ai-avatar-pulse" class="absolute inset-0 rounded-full border-2 border-cyan-400/50"></div>
                     </div>
@@ -925,17 +936,66 @@
                 </button>
 
                 <input type="text" id="chatbot-input" placeholder="Ask a question..." autocomplete="off"
-                       class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
                 
                 <button type="submit" id="chatbot-send-button"
-                        class="bg-cyan-500 text-slate-900 font-bold rounded-lg px-3 py-2 text-sm hover:bg-cyan-400 transition disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0">
+                            class="bg-cyan-500 text-slate-900 font-bold rounded-lg px-3 py-2 text-sm hover:bg-cyan-400 transition disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
                 </button>
             </form>
         </div>
     </div>
     
-    <!-- JS Bundle -->
+    <!-- 
+      AUDIO CONVERSION SCRIPT
+      Helper functions to convert the raw PCM audio from the TTS API into a playable WAV file.
+    -->
+    <script>
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, sampleRate) {
+            const pcm16 = new Int16Array(pcmData);
+            const wavHeader = new Uint8Array(44);
+            const dataSize = pcm16.length * 2;
+            const fileSize = dataSize + 36;
+            const view = new DataView(wavHeader.buffer);
+
+            // RIFF chunk
+            view.setUint32(0, 0x52494646, false); // "RIFF"
+            view.setUint32(4, fileSize, true); // File size - 8
+            view.setUint32(8, 0x57415645, false); // "WAVE"
+
+            // "fmt " chunk
+            view.setUint32(12, 0x666d7420, false); // "fmt "
+            view.setUint32(16, 16, true); // Subchunk1 size (16 for PCM)
+            view.setUint16(20, 1, true); // Audio format (1 for PCM)
+            view.setUint16(22, 1, true); // Number of channels (1)
+            view.setUint32(24, sampleRate, true); // Sample rate
+            view.setUint32(28, sampleRate * 2, true); // Byte rate (SampleRate * NumChannels * BitsPerSample/8)
+            view.setUint16(32, 2, true); // Block align (NumChannels * BitsPerSample/8)
+            view.setUint16(34, 16, true); // Bits per sample (16)
+
+            // "data" chunk
+            view.setUint32(36, 0x64617461, false); // "data"
+            view.setUint32(40, dataSize, true); // Subchunk2 size
+
+            const wavBytes = new Uint8Array(44 + dataSize);
+            wavBytes.set(wavHeader, 0);
+            wavBytes.set(new Uint8Array(pcmData), 44);
+
+            return new Blob([wavBytes], { type: 'audio/wav' });
+        }
+    </script>
+    
+    <!-- MAIN PAGE SCRIPT -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -1036,6 +1096,7 @@
             const voiceButton = document.getElementById('voice-button');
 
             // AI header elements
+            const aiAvatarImg = document.getElementById('ai-avatar-img');
             const aiStatusEl = document.getElementById('ai-status');
             const aiPulseEl = document.getElementById('ai-avatar-pulse');
 
@@ -1043,8 +1104,11 @@
             // (Front-end only: Public. For production you'd proxy this server-side.)
             const GEMINI_API_KEY = "AIzaSyBtbVdWzVOFViP9oMEyjDEQXY_Chj_P9_U"; // Make sure this is your NEW key
 
-            // We'll use a stable model name. 
-            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // API endpoint for Text Generation
+            const GEMINI_TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // API endpoint for Text-to-Speech
+            const GEMINI_TTS_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${GEMINI_API_KEY}`;
+
 
             // Your "memory" for the assistant
             const PROFILE_SUMMARY = `
@@ -1058,12 +1122,21 @@
             let messages = [
                 { role: "assistant", content: "Hi there! Ask me anything about Ahmad's skills, experience, or projects." }
             ];
+            let isSpeaking = false;
+            let currentAudio = null;
 
             // --- UI helpers ---
             const toggleChatbot = () => {
                 chatbotPanel.classList.toggle('hidden');
                 if (!chatbotPanel.classList.contains('hidden')) {
                     chatbotInput.focus();
+                } else {
+                    // Stop any playing audio if the user closes the panel
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        isSpeaking = false;
+                        aiAvatarImg.classList.remove('ai-speaking');
+                    }
                 }
             };
 
@@ -1190,13 +1263,88 @@
                 throw new Error("Max retries reached");
             };
 
-            // Main model call
+            // --- NEW: Play Audio Function ---
+            const playAudio = (text) => {
+                // Return a promise so we can await its completion
+                return new Promise(async (resolve, reject) => {
+                    if (isSpeaking) {
+                        currentAudio.pause();
+                        isSpeaking = false;
+                    }
+                    
+                    aiAvatarImg.classList.add('ai-speaking'); // Start glowing
+                    
+                    try {
+                        const ttsPayload = {
+                            contents: [{ parts: [{ text: `Say cheerfully: ${text}` }] }], // Add style
+                            generationConfig: {
+                                responseModalities: ["AUDIO"],
+                                speechConfig: {
+                                    voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } // A good, firm voice
+                                }
+                            },
+                            model: "gemini-2.5-flash-preview-tts"
+                        };
+
+                        const response = await fetchWithBackoff(GEMINI_TTS_API_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(ttsPayload)
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            console.error("TTS API error:", data);
+                            throw new Error(data.error?.message || "TTS Request Failed");
+                        }
+
+                        const part = data?.candidates?.[0]?.content?.parts?.[0];
+                        const audioData = part?.inlineData?.data;
+                        const mimeType = part?.inlineData?.mimeType;
+
+                        if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                            const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                            const pcmData = base64ToArrayBuffer(audioData);
+                            const wavBlob = pcmToWav(pcmData, sampleRate);
+                            const audioUrl = URL.createObjectURL(wavBlob);
+                            
+                            currentAudio = new Audio(audioUrl);
+                            isSpeaking = true;
+                            
+                            currentAudio.onended = () => {
+                                isSpeaking = false;
+                                aiAvatarImg.classList.remove('ai-speaking'); // Stop glowing
+                                resolve(); // Resolve promise when audio finishes
+                            };
+                            
+                            currentAudio.onerror = (e) => {
+                                console.error("Error playing audio:", e);
+                                isSpeaking = false;
+                                aiAvatarImg.classList.remove('ai-speaking');
+                                reject(e); // Reject promise on error
+                            };
+
+                            currentAudio.play();
+
+                        } else {
+                            throw new Error("No valid audio data in TTS response.");
+                        }
+                    } catch (err) {
+                        console.error("Error in playAudio:", err);
+                        aiAvatarImg.classList.remove('ai-speaking'); // Stop glowing on error
+                        reject(err); // Reject promise on error
+                    }
+                });
+            };
+
+
+            // --- Main model call (Updated) ---
             const fetchGeminiResponse = async (userQuery) => {
                 showTypingIndicator();
                 setAIThinking();
                 chatbotSendButton.disabled = true;
 
-                // Developer forgot to set a real key
                 if (GEMINI_API_KEY === "YOUR_NEW_API_KEY_GOES_HERE") {
                     hideTypingIndicator();
                     setAIOnline();
@@ -1216,18 +1364,18 @@
                 };
 
                 try {
-                    const response = await fetchWithBackoff(GEMINI_API_URL, requestOptions);
+                    const response = await fetchWithBackoff(GEMINI_TEXT_API_URL, requestOptions);
                     const data = await response.json();
 
                     hideTypingIndicator();
+                    // Set to "Online" *after* getting text, before playing audio
+                    setAIOnline(); 
 
                     if (!response.ok) {
                         console.error("Gemini API error:", data);
-                        // Provide more specific feedback if possible
                         let errorMsg = `Request failed with status ${response.status}`;
                         if (data.error?.message) {
                            errorMsg = data.error.message;
-                           // Check specifically for the referrer block
                            if (errorMsg.includes("API_KEY_HTTP_REFERRER_BLOCKED") || errorMsg.includes("Requests from referer") ) {
                                errorMsg = "Error: This website domain is not authorized to use the API key. Please check the key restrictions in Google Cloud Console.";
                            }
@@ -1240,7 +1388,11 @@
                     if (text) {
                         const assistantMessage = { role: "assistant", content: text };
                         messages.push(assistantMessage);
-                        renderAssistantStreaming(text); // Use streaming renderer
+                        renderAssistantStreaming(text); // Render text with typewriter
+                        
+                        // --- NEW: Play the audio ---
+                        await playAudio(text); // Wait for the audio to finish playing
+
                     } else {
                         console.error("Unexpected response structure:", data);
                         throw new Error("Empty or invalid response structure from model.");
@@ -1248,7 +1400,8 @@
                 } catch (err) {
                     console.error("Error in fetchGeminiResponse:", err);
                     hideTypingIndicator();
-                    // Display the specific error message if available
+                    setAIOnline(); // Ensure we go back to online state on error
+                    
                     const displayError = err.message.startsWith("Error:") ? err.message : 
                         "Sorry, I couldn’t reach the AI right now. Please try again later or contact Ahmad directly.";
                     
@@ -1260,9 +1413,10 @@
                     messages.push(errorMessage);
                     renderMessage(errorMessage);
                 } finally {
+                    // This runs after try/catch, even after await playAudio()
                     setAIOnline();
                     chatbotSendButton.disabled = false;
-                    chatbotInput.focus();
+                    if (!recognizing) chatbotInput.focus();
                 }
             };
 
@@ -1282,7 +1436,7 @@
             chatbotForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const userInput = chatbotInput.value.trim();
-                if (!userInput) return;
+                if (!userInput || isSpeaking) return; // Don't submit if empty or already speaking
 
                 renderMessage({ role: 'user', content: userInput });
                 messages.push({ role: 'user', content: userInput });
@@ -1291,7 +1445,7 @@
                 await fetchGeminiResponse(userInput);
             });
 
-            // Voice input logic via Web Speech API (Chrome etc.)
+            // --- Voice input logic via Web Speech API (Chrome etc.) ---
             let recognizing = false;
             let recognition;
 
@@ -1314,7 +1468,7 @@
                     voiceButton.classList.add('bg-slate-700','text-slate-200');
                     chatbotInput.placeholder = "Ask a question...";
                 };
-                 
+                
                 recognition.onerror = (event) => {
                     console.error("Speech recognition error:", event.error);
                     chatbotInput.placeholder = "Voice error. Try typing.";
@@ -1333,8 +1487,8 @@
                     // Show interim results live, finalize on final
                     chatbotInput.value = finalTranscript || interimTranscript; 
                      if (finalTranscript) {
-                         // Optionally auto-submit when speech ends and is final
-                         // chatbotForm.requestSubmit(); 
+                         // Automatically submit when speech ends and is final
+                         chatbotForm.requestSubmit(); 
                      }
                 };
 
@@ -1342,6 +1496,9 @@
                     if (recognizing) {
                         recognition.stop();
                     } else {
+                        if (isSpeaking) { // Don't listen if AI is talking
+                            currentAudio.pause(); 
+                        }
                         try {
                            recognition.start();
                         } catch (e) {
