@@ -205,6 +205,21 @@
             60%      { transform: rotate(8deg); }
         }
 
+        /* NEW: Robot eye animations */
+        @keyframes robotBlink {
+            0%, 95%, 100% { opacity: 1; }
+            98% { opacity: 0; }
+        }
+        #robot-eye-left, #robot-eye-right {
+            animation: robotBlink 5s ease-in-out infinite 2s; /* Slow, natural blink */
+        }
+        
+        .robot-active #robot-eye-left,
+        .robot-active #robot-eye-right {
+            fill: #22d3ee; /* Glow cyan */
+            animation: robotBlink 1.2s ease-in-out infinite; /* Fast, active blink */
+        }
+
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200">
@@ -932,7 +947,7 @@
     <!-- Floating AI Robot Mascot -->
     <div id="floating-robot"
          class="fixed z-[70] w-16 h-24 cursor-pointer"
-         title="Click to explore Ahmad's portfolio with the AI bot">
+         title="MakkiBot 1.0: Click me to ask Ahmad's AI a question! 🤖">
       <svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
         <!-- Glow circle behind robot -->
         <defs>
@@ -1001,13 +1016,11 @@
             <div class="w-72 h-72 bg-gradient-to-br from-cyan-500/20 via-transparent to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
         </div>
 
-        <!-- Floating Chat Button -->
-        <button id="chatbot-toggle-button" type="button" aria-label="Open AI Assistant" class="bg-cyan-500 text-slate-900 w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/30 hover:bg-cyan-400 hover:scale-110 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-        </button>
+        <!-- Floating Chat Button (REMOVED) -->
+        <!-- This is now controlled by the robot -->
 
         <!-- Chat Panel -->
-        <div id="chatbot-panel" class="absolute bottom-20 right-0 w-80 max-h-[60vh] flex flex-col bg-slate-900 border border-slate-700/50 rounded-xl shadow-2xl shadow-cyan-500/20">
+        <div id="chatbot-panel" class="hidden absolute bottom-20 right-0 w-80 max-h-[60vh] flex flex-col bg-slate-900 border border-slate-700/50 rounded-xl shadow-2xl shadow-cyan-500/20">
             
             <!-- Header with AI avatar & status -->
             <div class="bg-slate-800/80 border-b border-slate-700/50 text-slate-200 text-sm font-semibold flex items-center justify-between px-4 py-3 rounded-t-xl">
@@ -1305,6 +1318,9 @@
             const aiAvatarImg = document.getElementById('ai-avatar-img');
             const aiStatusEl = document.getElementById('ai-status');
             const aiPulseEl = document.getElementById('ai-avatar-pulse');
+            
+            // --- NEW: Robot element ---
+            const robotMascot = document.getElementById('floating-robot');
 
             // --- API CONFIG ---
             // (Front-end only: Public. For production you'd proxy this server-side.)
@@ -1346,7 +1362,11 @@
                 }
             };
 
-            chatbotToggleButton.addEventListener('click', toggleChatbot);
+            // NEW: Robot click opens the chat
+            if (robotMascot) {
+                robotMascot.addEventListener('click', toggleChatbot);
+            }
+            // OLD: chatbotToggleButton.addEventListener('click', toggleChatbot);
             chatbotCloseButton.addEventListener('click', toggleChatbot);
 
             // Start open
@@ -1432,12 +1452,29 @@
                 aiStatusEl.textContent = "Thinking...";
                 aiStatusEl.classList.add("text-cyan-300");
                 aiPulseEl.classList.add("ai-thinking");
+                if (robotMascot) robotMascot.classList.add('robot-active'); // NEW
             }
             function setAIOnline() {
                 aiStatusEl.textContent = "Online";
                 aiStatusEl.classList.remove("text-cyan-300");
                 aiPulseEl.classList.remove("ai-thinking");
+                if (robotMascot) robotMascot.classList.remove('robot-active'); // NEW
             }
+            
+            // --- NEW: Speaking status controls ---
+            function setAISpeaking() {
+                aiStatusEl.textContent = "Speaking...";
+                aiStatusEl.classList.add("text-cyan-300");
+                aiAvatarImg.classList.add('ai-speaking');
+                if (robotMascot) robotMascot.classList.add('robot-active'); // NEW
+            }
+            function setAIDoneSpeaking() {
+                aiStatusEl.textContent = "Online";
+                aiStatusEl.classList.remove("text-cyan-300");
+                aiAvatarImg.classList.remove('ai-speaking');
+                if (robotMascot) robotMascot.classList.remove('robot-active'); // NEW
+            }
+
 
             // delay helper
             const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -1478,7 +1515,7 @@
                         isSpeaking = false;
                     }
                     
-                    aiAvatarImg.classList.add('ai-speaking'); // Start glowing
+                    setAISpeaking(); // NEW
                     
                     try {
                         const ttsPayload = {
@@ -1520,14 +1557,14 @@
                             
                             currentAudio.onended = () => {
                                 isSpeaking = false;
-                                aiAvatarImg.classList.remove('ai-speaking'); // Stop glowing
+                                setAIDoneSpeaking(); // NEW
                                 resolve(); // Resolve promise when audio finishes
                             };
                             
                             currentAudio.onerror = (e) => {
                                 console.error("Error playing audio:", e);
                                 isSpeaking = false;
-                                aiAvatarImg.classList.remove('ai-speaking');
+                                setAIDoneSpeaking(); // NEW
                                 reject(e); // Reject promise on error
                             };
 
@@ -1538,7 +1575,7 @@
                         }
                     } catch (err) {
                         console.error("Error in playAudio:", err);
-                        aiAvatarImg.classList.remove('ai-speaking'); // Stop glowing on error
+                        setAIDoneSpeaking(); // NEW
                         reject(err); // Reject promise on error
                     }
                 });
@@ -1620,7 +1657,7 @@
                     renderMessage(errorMessage);
                 } finally {
                     // This runs after try/catch, even after await playAudio()
-                    setAIOnline();
+                    setAIOnline(); // This is fine, will be overridden by speaking if needed
                     chatbotSendButton.disabled = false;
                     if (!recognizing) chatbotInput.focus();
                 }
@@ -1703,7 +1740,7 @@
                         recognition.stop();
                     } else {
                         if (isSpeaking) { // Don't listen if AI is talking
-                            currentAudio.pause(); 
+                            currentAudio.pause(); // This will trigger onended, which calls setAIDoneSpeaking
                         }
                         try {
                            recognition.start();
