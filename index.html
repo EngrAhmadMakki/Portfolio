@@ -22,9 +22,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Calendly Embed Styles -->
-    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+
+    <!-- NEW: TensorFlow.js (for AI Playground) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     
     <style>
         body {
@@ -122,7 +123,7 @@
             font-size: 0.875rem;
         }
 
-        /* AI avatar "thinking" pulse ring */
+        /* AI avatar pulse ring */
         @keyframes pulseRing {
             0%   { box-shadow: 0 0 8px 2px rgba(34,211,238,0.6); opacity: 1; }
             70%  { box-shadow: 0 0 20px 8px rgba(34,211,238,0); opacity: 0; }
@@ -131,18 +132,15 @@
         .ai-thinking {
             animation: pulseRing 1.5s infinite;
         }
-        
-        /* AI avatar "speaking" pulse shadow */
-        @keyframes pulseShadow {
-            0%, 100% { box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.3); }
-            50% { box-shadow: 0 0 16px 6px rgba(34, 211, 238, 0.7); }
+
+        /* Speaking pulse for AI avatar image */
+        @keyframes pulseSpeak {
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(34,211,238,0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(34,211,238,1); }
+            100% { transform: scale(1); box-shadow: 0 0 10px rgba(34,211,238,0.5); }
         }
         .ai-speaking {
-            animation: pulseShadow 1.2s ease-in-out infinite;
-        }
-        #ai-avatar-img {
-             box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.0);
-             transition: box-shadow 0.3s ease;
+             animation: pulseSpeak 1s ease-in-out infinite;
         }
 
         /* Ambient glow behind chatbot */
@@ -157,15 +155,12 @@
 
         /* Floating robot base position + float animation */
         #floating-robot {
-            bottom: 7rem;        /* initial position */
+            /* NEW: Positioned bottom-right */
+            bottom: 2rem;       
             right: 1.5rem;
             z-index: 70;
             animation: robotFloat 4s ease-in-out infinite;
             transition:
-                top 0.4s ease,
-                bottom 0.4s ease,
-                left 0.4s ease,
-                right 0.4s ease,
                 transform 0.3s ease,
                 box-shadow 0.3s ease;
         }
@@ -181,16 +176,7 @@
             50%      { transform: translateY(-6px); }
         }
 
-        /* quick jump effect when moving to new section */
-        .robot-jump {
-            animation: robotJump 0.35s ease-out;
-        }
-
-        @keyframes robotJump {
-            0%   { transform: scale(0.8) translateY(8px); opacity: 0.4; }
-            60%  { transform: scale(1.1) translateY(-4px); opacity: 1; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
+        /* quick jump effect (REMOVED - no longer needed) */
 
         /* Fun: wave the right arm a bit */
         #robot-arm-right {
@@ -220,6 +206,52 @@
             animation: robotBlink 1.2s ease-in-out infinite; /* Fast, active blink */
         }
 
+        /* NEW: AI Playground Styles */
+        #playground-video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px; /* Limit max size */
+            margin: auto;
+            background: #020617;
+            border-radius: 0.5rem;
+            overflow: hidden; /* Keep canvas inside */
+        }
+        #playground-video,
+        #playground-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #playground-video {
+            /* Flip video horizontally for mirror effect */
+            transform: scaleX(-1);
+        }
+        #playground-canvas {
+            z-index: 10;
+        }
+        /* Style for detection boxes */
+        .detection-box {
+            position: absolute;
+            border: 2px solid #22d3ee;
+            border-radius: 0.25rem;
+            z-index: 20;
+            transition: all 0.1s linear;
+        }
+        .detection-label {
+            position: absolute;
+            top: -1.25rem;
+            left: -2px;
+            background: #22d3ee;
+            color: #020617;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            white-space: nowrap;
+        }
+
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200">
@@ -244,6 +276,8 @@
                     <a href="#skills" class="nav-link text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Skills</a>
                     <a href="#experience" class="nav-link text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Experience</a>
                     <a href="#projects" class="nav-link text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Projects</a>
+                    <!-- NEW: AI Playground Link -->
+                    <a href="#playground" class="nav-link text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Playground</a>
                     <a href="#appointment" class="nav-link text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Book a Call</a>
                     <a href="#gettintouch" class="nav-link text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors">Get in Touch</a>
                     
@@ -269,6 +303,8 @@
                 <a href="#skills" class="nav-link block text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-colors">Skills</a>
                 <a href="#experience" class="nav-link block text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-colors">Experience</a>
                 <a href="#projects" class="nav-link block text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-colors">Projects</a>
+                <!-- NEW: AI Playground Link -->
+                <a href="#playground" class="nav-link block text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-colors">Playground</a>
                 <a href="#appointment" class="nav-link block text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-colors">Book a Call</a>
                 <a href="#gettintouch" class="nav-link block text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-base font-medium transition-colors">Get in Touch</a>
                 <a href="AhmadMakki_AI-ML_Engineer.pdf" download="Ahmad_Makki_Resume.pdf" class="block text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500 hover:text-slate-900 text-center px-4 py-2 rounded-md text-base font-medium transition-all duration-300 mt-2 mx-3">
@@ -319,24 +355,14 @@
                         </a>
                     </div>
                 </div>
-                <!-- Image -->
+                <!-- Image (Reverted to static image) -->
                 <div class="flex-shrink-0 fade-in-load" style="transition-delay: 200ms;">
-                    <!-- 
-                        REPLACED the <img> tag with a <video> tag.
-                        - src: Points to your new video file.
-                        - autoplay, loop, muted, playsinline: Required for it to work like a "live" profile picture.
-                        - classes: Kept all the same styling (rounded-full, object-cover, etc.)
-                    -->
-                    <video 
-                        src="Talking_Head_Avatar_Generation.mp4" 
-                        autoplay 
-                        loop 
-                        muted 
-                        playsinline
+                    <img 
+                        src="Ahmad_Makki_Pic.jpeg" 
+                        alt="Ahmad Makki" 
                         class="w-48 h-48 md:w-64 md:h-64 rounded-full object-cover shadow-2xl shadow-cyan-500/20 border-4 border-slate-700"
+                        onerror="this.src='https://placehold.co/256x256/1e293b/94a3b8?text=Ahmad+Makki'; this.onerror=null;"
                     >
-                        Your browser does not support the video tag.
-                    </video>
                 </div>
             </div>
         </section>
@@ -577,7 +603,7 @@
             <div class="mt-12 max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
                 <!-- Project: CV API (Linked from Experience) -->
                 <div id="project-cv-api" class="bg-slate-800 p-0 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="realtime.png" alt="Real-time CV Inference API" class="rounded-t-lg">
+                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=CV+Inference+API" alt="Project Thumbnail" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">Real-time CV Inference API</h3>
                         <p class="text-slate-300 mt-3 flex-grow">
@@ -596,7 +622,7 @@
                 </div>
                 <!-- Project 1 -->
                 <div class="bg-slate-800 p-0 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="mental_health.png" alt="Smart Conversational Agent for Mental Health" class="rounded-t-lg">
+                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=Mental+Health+Chatbot" alt="Project Thumbnail" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">Smart Conversational Agent for Mental Health</h3>
                         <p class="text-slate-300 mt-3 flex-grow">
@@ -615,7 +641,7 @@
                 </div>
                 <!-- Project 2 -->
                 <div class="bg-slate-800 p-0 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="rag.png" alt="RAG-based PDF Query System" class="rounded-t-lg">
+                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=RAG+PDF+Query" alt="Project Thumbnail" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">Deployment of RAG-based PDF Query System</h3>
                         <p class="text-slate-300 mt-3 flex-grow">
@@ -635,7 +661,7 @@
                 </div>
                 <!-- Project 3 -->
                 <div class="bg-slate-800 p-0 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="kubernetes.png" alt="Kubernetes ML Model Deployment" class="rounded-t-lg">
+                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=K8s+ML+Deployment" alt="Project Thumbnail" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">Kubernetes ML Model Deployment</h3>
                         <p class="text-slate-300 mt-3 flex-grow">
@@ -656,6 +682,34 @@
                 <a href="#" class="text-cyan-400 font-medium hover:underline">
                     See full project list (placeholder) &rarr;
                 </a>
+            </div>
+        </section>
+
+        <!-- NEW: AI Playground Section -->
+        <section id="playground" class="py-16 md:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">AI Playground</h2>
+                <p class="mt-4 text-lg text-cyan-400">See My Skills in Action (Live Demo)</p>
+                <p class="mt-4 max-w-2xl mx-auto text-slate-400">
+                    This is a real-time object detection model (COCO-SSD) running entirely in your browser using TensorFlow.js. 
+                    No data is sent to a server. This demonstrates my ability to deploy optimized models directly to the web.
+                </p>
+            </div>
+
+            <div class="mt-12 max-w-2xl mx-auto text-center">
+                <button id="playground-button" class="inline-flex items-center gap-2 bg-cyan-500 text-slate-900 font-bold px-6 py-3 rounded-lg text-base shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                    Start Webcam
+                </button>
+                <p id="playground-status" class="text-slate-500 text-sm mt-4">Click the button to load the model and start your webcam.</p>
+                
+                <!-- Container for webcam feed and canvas -->
+                <div id="playground-video-container" class="mt-4 aspect-video rounded-lg shadow-xl border border-slate-700/50 hidden">
+                    <video id="playground-video" autoplay playsinline muted></video>
+                    <canvas id="playground-canvas"></canvas>
+                    <!-- This div will hold the detection boxes -->
+                    <div id="playground-detections" class="absolute inset-0"></div>
+                </div>
             </div>
         </section>
         
@@ -798,7 +852,8 @@
             <div class="mt-12 max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
                 <!-- Post 1 -->
                 <div class="bg-slate-800 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="gemini.png" alt="Abstract graphic representing prompt engineering concepts" class="rounded-t-lg">
+                    <!-- TODO: Replace with your actual image, e.g., src="prompt-thinking.png" -->
+                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=Prompt+Thinking" alt="Abstract graphic representing prompt engineering concepts" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">The Real Skill in 2026: Prompt Thinking</h3>
                         <p class="text-slate-300 mt-3 italic flex-grow">
@@ -814,7 +869,8 @@
                 </div>
                 <!-- Post 2 -->
                 <div class="bg-slate-800 rounded-lg shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col transform hover:scale-[1.03] border border-slate-700 hover:bg-slate-700/60">
-                    <img src="n8n-image.png" alt="Diagram showing n8n automation workflow connecting different apps" class="rounded-t-lg">
+                    <!-- TODO: Replace with your actual image, e.g., src="n8n-automation.png" -->
+                    <img src="https://placehold.co/600x400/1e293b/38bdf8?text=n8n+Automation" alt="Diagram showing n8n automation workflow connecting different apps" class="rounded-t-lg">
                     <div class="p-6 flex flex-col flex-grow">
                         <h3 class="text-xl font-semibold text-cyan-400">n8n: The Automation Tool Every Industry Needs</h3>
                         <p class="text-slate-300 mt-3 italic flex-grow">
@@ -835,27 +891,33 @@
                 </a>
             </div>
         </section>
-
-        <!-- NEW: Book an Appointment Section -->
-        <section id="appointment" class="py-16 md:py-24 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+        
+        <!-- Book an Appointment Section -->
+        <section id="appointment" class="py-16 md:py-24">
             <div class="text-center">
                 <h2 class="text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">Book an Appointment</h2>
-                <p class="mt-4 text-lg text-cyan-400">Schedule a 30-minute introductory call with me.</p>
-                <p class="mt-2 text-sm text-slate-400">Please set the theme to "Dark" in your Calendly account for a seamless look!</p>
+                <p class="mt-4 text-lg text-cyan-400">Let's connect! Schedule a call with me.</p>
             </div>
             <div class="mt-12 max-w-4xl mx-auto">
-                <!-- Calendly inline widget begin -->
-                <div class="calendly-inline-widget" data-url="https://calendly.com/makkia52/" style="min-width:320px;height:700px;"></div>
-                <!-- Calendly inline widget end -->
+                <!-- Calendly inline widget -->
+                <!-- 
+                    NOTE: To make this match your dark theme, log in to Calendly,
+                    go to your Event Type settings, and under "Booking Page Options",
+                    set the theme to "Dark".
+                -->
+                <div class="calendly-inline-widget min-h-[700px] shadow-xl rounded-2xl border border-slate-700/50 overflow-hidden" 
+                     data-url="https://calendly.com/makkia52/"
+                     style="min-height: 700px; width: 100%;">
+                </div>
             </div>
         </section>
-        
+
         <!-- Get in Touch Section -->
         <section id="gettintouch" class="py-16 md:py-32">
             <div class="text-center">
                 <h2 class="text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">Get in Touch</h2>
                 <p class="mt-6 max-w-lg mx-auto text-lg text-slate-400">
-                    Prefer a different method? Feel free to reach out directly.
+                    Prefer a different method? I'm open to new opportunities and collaborations.
                 </p>
             </div>
             
@@ -894,6 +956,10 @@
                 </div>
                 
                 <!-- Contact Form -->
+                <!-- 
+                    REMINDER: Replace 'YOUR_FORM_ID' in the action URL with your actual Formspree ID.
+                    This one is from your previous message: https://formspree.io/f/xdkpgbdr
+                -->
                 <form action="https://formspree.io/f/xdkpgbdr" method="POST" enctype="multipart/form-data" class="space-y-4">
                     <div>
                         <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Your Email</label>
@@ -1026,19 +1092,17 @@
             <div class="w-72 h-72 bg-gradient-to-br from-cyan-500/20 via-transparent to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
         </div>
 
-        <!-- Floating Chat Button (REMOVED) -->
-        <!-- This is now controlled by the robot -->
+        <!-- Floating Chat Button (REMOVED - Robot is now the button) -->
 
-        <!-- Chat Panel -->
+        <!-- Chat Panel (Now hidden by default, toggled by robot) -->
         <div id="chatbot-panel" class="hidden absolute bottom-20 right-0 w-80 max-h-[60vh] flex flex-col bg-slate-900 border border-slate-700/50 rounded-xl shadow-2xl shadow-cyan-500/20">
             
             <!-- Header with AI avatar & status -->
             <div class="bg-slate-800/80 border-b border-slate-700/50 text-slate-200 text-sm font-semibold flex items-center justify-between px-4 py-3 rounded-t-xl">
                 <div class="flex items-center gap-3">
-                    <!-- AI avatar bubble -->
+                    <!-- AI avatar bubble (Your Photo) -->
                     <div id="ai-avatar" class="relative">
-                        <!-- Replaced 'AI' div with your image -->
-                        <img id="ai-avatar-img" src="Ahmad_Makki_Pic.jpeg" alt="Ahmad Makki Avatar" class="w-8 h-8 rounded-full object-cover">
+                        <img id="ai-avatar-img" src="Ahmad_Makki_Pic.jpeg" alt="Ahmad Makki" class="w-8 h-8 rounded-full object-cover border-2 border-slate-700 transition-all duration-300">
                         <!-- pulsing ring -->
                         <div id="ai-avatar-pulse" class="absolute inset-0 rounded-full border-2 border-cyan-400/50"></div>
                     </div>
@@ -1049,7 +1113,7 @@
                     </div>
                 </div>
 
-                <button id="chatbot-close-button" type="button" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+                <button id="chatbot-close-button" type="button" class="text-slate-400 hover:text-white text-xl leading-none" aria-label="Close chat">&times;</button>
             </div>
 
             <!-- Messages Area -->
@@ -1071,7 +1135,7 @@
                 <!-- Initial Bot Message -->
                 <div class="flex">
                     <div class="self-start bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 max-w-[80%]">
-                        Hi there! Ask me anything about Ahmad's skills, experience, or projects.
+                        Hi there! I'm MakkiBot 1.0. Ask me anything about Ahmad's skills or projects.
                     </div>
                 </div>
                 <!-- Future messages get appended here -->
@@ -1094,69 +1158,17 @@
                 </button>
 
                 <input type="text" id="chatbot-input" placeholder="Ask a question..." autocomplete="off"
-                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                       class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
                 
                 <button type="submit" id="chatbot-send-button"
-                            class="bg-cyan-500 text-slate-900 font-bold rounded-lg px-3 py-2 text-sm hover:bg-cyan-400 transition disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0">
+                        class="bg-cyan-500 text-slate-900 font-bold rounded-lg px-3 py-2 text-sm hover:bg-cyan-400 transition disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
                 </button>
             </form>
         </div>
     </div>
     
-    <!-- Calendly Embed Script -->
-    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
-
-    <!-- 
-      AUDIO CONVERSION SCRIPT
-      Helper functions to convert the raw PCM audio from the TTS API into a playable WAV file.
-    -->
-    <script>
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function pcmToWav(pcmData, sampleRate) {
-            const pcm16 = new Int16Array(pcmData);
-            const wavHeader = new Uint8Array(44);
-            const dataSize = pcm16.length * 2;
-            const fileSize = dataSize + 36;
-            const view = new DataView(wavHeader.buffer);
-
-            // RIFF chunk
-            view.setUint32(0, 0x52494646, false); // "RIFF"
-            view.setUint32(4, fileSize, true); // File size - 8
-            view.setUint32(8, 0x57415645, false); // "WAVE"
-
-            // "fmt " chunk
-            view.setUint32(12, 0x666d7420, false); // "fmt "
-            view.setUint32(16, 16, true); // Subchunk1 size (16 for PCM)
-            view.setUint16(20, 1, true); // Audio format (1 for PCM)
-            view.setUint16(22, 1, true); // Number of channels (1)
-            view.setUint32(24, sampleRate, true); // Sample rate
-            view.setUint32(28, sampleRate * 2, true); // Byte rate (SampleRate * NumChannels * BitsPerSample/8)
-            view.setUint16(32, 2, true); // Block align (NumChannels * BitsPerSample/8)
-            view.setUint16(34, 16, true); // Bits per sample (16)
-
-            // "data" chunk
-            view.setUint32(36, 0x64617461, false); // "data"
-            view.setUint32(40, dataSize, true); // Subchunk2 size
-
-            const wavBytes = new Uint8Array(44 + dataSize);
-            wavBytes.set(wavHeader, 0);
-            wavBytes.set(new Uint8Array(pcmData), 44);
-
-            return new Blob([wavBytes], { type: 'audio/wav' });
-        }
-    </script>
-    
-    <!-- MAIN PAGE SCRIPT -->
+    <!-- JS Bundle -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -1246,76 +1258,37 @@
             window.addEventListener('scroll', onScroll);
             onScroll(); // run once
 
-            // --- Floating Robot: move between sections & scroll on click ---
-            const robot = document.getElementById('floating-robot');
-            if (robot) {
-                // Sections the robot will "visit" in order
-                const robotStops = [
-                    { sectionId: 'hero',       align: 'right', offsetY: 120 },
-                    { sectionId: 'skills',     align: 'left',  offsetY: 100 },
-                    { sectionId: 'projects',   align: 'right', offsetY: 160 },
-                    { sectionId: 'gettintouch',align: 'left',  offsetY: 120 }
-                ];
+            // --- Floating Robot: MakkiBot 1.0 (UNIFIED) ---
+            const robotMascot = document.getElementById('floating-robot');
+            let hoverCount = 0;
+            const funnyHoverTitles = [
+                "Oye, gently! I’m a delicate model.", // 5th
+                "Aap clearly procrastinate kar rahe ho 😏", // 10th
+                "Bus karo bhai, main GitHub issue file kar doonga!" // 15th
+            ];
 
-                let stopIndex = 0;
-
-                function moveRobotToCurrentStop() {
-                    const stop = robotStops[stopIndex];
-                    const section = document.getElementById(stop.sectionId);
-                    if (!section) return;
-
-                    const rect = section.getBoundingClientRect();
-                    const viewTop = window.scrollY;
-
-                    // target vertical position: a bit below the section top
-                    const absoluteY = viewTop + rect.top + stop.offsetY;
-                    const topInViewport = absoluteY - window.scrollY;
-
-                    // keep robot inside viewport
-                    const clampedTop = Math.max(80, Math.min(window.innerHeight - 120, topInViewport));
-
-                    // clear previous edges
-                    robot.style.top = clampedTop + 'px';
-                    robot.style.bottom = '';
-                    robot.style.left = '';
-                    robot.style.right = '';
-
-                    if (stop.align === 'left') {
-                        robot.style.left = '1.2rem';
-                    } else {
-                        robot.style.right = '1.2rem';
+            if (robotMascot) {
+                // On hover: count hovers and get funny
+                robotMascot.addEventListener('mouseenter', () => {
+                    hoverCount++;
+                    let baseTitle = "MakkiBot 1.0: Click me to ask Ahmad's AI a question! 🤖";
+                    
+                    if (hoverCount === 5) {
+                        robotMascot.title = funnyHoverTitles[0];
+                    } else if (hoverCount === 10) {
+                        robotMascot.title = funnyHoverTitles[1];
+                    } else if (hoverCount === 15) {
+                        robotMascot.title = funnyHoverTitles[2];
+                        hoverCount = 0; // Reset
+                    } else if (hoverCount > 1) {
+                        robotMascot.title = baseTitle;
                     }
-
-                    // trigger jump animation
-                    robot.classList.remove('robot-jump');
-                    void robot.offsetWidth; // force reflow
-                    robot.classList.add('robot-jump');
-                }
-
-                // initial placement after load
-                setTimeout(moveRobotToCurrentStop, 700);
-
-                // every 12 seconds, move to next stop
-                setInterval(() => {
-                    stopIndex = (stopIndex + 1) % robotStops.length;
-                    moveRobotToCurrentStop();
-                }, 12000);
-
-                // clicking the robot scrolls to the current section (and also re-jumps)
-                robot.addEventListener('click', () => {
-                    const stop = robotStops[stopIndex];
-                    const section = document.getElementById(stop.sectionId);
-                    if (section) {
-                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        // little delay then re-place in case of viewport change
-                        setTimeout(moveRobotToCurrentStop, 600);
-                    }
+                    // On first hover, just use the default title
                 });
             }
 
 
             // --- Chatbot Logic ---
-            const chatbotToggleButton = document.getElementById('chatbot-toggle-button');
             const chatbotPanel = document.getElementById('chatbot-panel');
             const chatbotCloseButton = document.getElementById('chatbot-close-button');
             const chatbotMessages = document.getElementById('chatbot-messages');
@@ -1328,19 +1301,14 @@
             const aiAvatarImg = document.getElementById('ai-avatar-img');
             const aiStatusEl = document.getElementById('ai-status');
             const aiPulseEl = document.getElementById('ai-avatar-pulse');
-            
-            // --- NEW: Robot element ---
-            const robotMascot = document.getElementById('floating-robot');
 
             // --- API CONFIG ---
-            // (Front-end only: Public. For production you'd proxy this server-side.)
-            const GEMINI_API_KEY = "AIzaSyBtbVdWzVOFViP9oMEyjDEQXY_Chj_P9_U"; // Make sure this is your NEW key
-
-            // API endpoint for Text Generation
-            const GEMINI_TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-            // API endpoint for Text-to-Speech
-            const GEMINI_TTS_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${GEMINI_API_KEY}`;
-
+            // CRITICAL: Replace this with your new, restricted API key
+            const GEMINI_API_KEY = "YOUR_NEW_API_KEY_GOES_HERE"; 
+            
+            // TTS API Config
+            const TTS_API_URL = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GEMINI_API_KEY}`;
+            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             // Your "memory" for the assistant
             const PROFILE_SUMMARY = `
@@ -1352,23 +1320,16 @@
             `.trim().replace(/\s+/g, ' ');
 
             let messages = [
-                { role: "assistant", content: "Hi there! Ask me anything about Ahmad's skills, experience, or projects." }
+                 { role: "assistant", content: "Hi there! I'm MakkiBot 1.0. Ask me anything about Ahmad's skills or projects." }
             ];
-            let isSpeaking = false;
             let currentAudio = null;
+            let isSpeaking = false;
 
             // --- UI helpers ---
             const toggleChatbot = () => {
                 chatbotPanel.classList.toggle('hidden');
                 if (!chatbotPanel.classList.contains('hidden')) {
                     chatbotInput.focus();
-                } else {
-                    // Stop any playing audio if the user closes the panel
-                    if (currentAudio) {
-                        currentAudio.pause();
-                        isSpeaking = false;
-                        aiAvatarImg.classList.remove('ai-speaking');
-                    }
                 }
             };
 
@@ -1376,12 +1337,11 @@
             if (robotMascot) {
                 robotMascot.addEventListener('click', toggleChatbot);
             }
-            // OLD: chatbotToggleButton.addEventListener('click', toggleChatbot);
             chatbotCloseButton.addEventListener('click', toggleChatbot);
 
-            // Start open
-            chatbotPanel.classList.remove('hidden');
-            setTimeout(() => chatbotInput.focus(), 100);
+            // Start open on load (REMOVED)
+            // chatbotPanel.classList.remove('hidden');
+            // setTimeout(() => chatbotInput.focus(), 100);
 
             // message rendering for user / errors / static assistant
             function renderMessage(message) {
@@ -1457,37 +1417,92 @@
                 if (indicator) indicator.remove();
             };
 
-            // AI status bubble controls
+            // AI status bubble controls (NOW with robot)
             function setAIThinking() {
                 aiStatusEl.textContent = "Thinking...";
                 aiStatusEl.classList.add("text-cyan-300");
                 aiPulseEl.classList.add("ai-thinking");
-                if (robotMascot) robotMascot.classList.add('robot-active'); // NEW
+                if (robotMascot) robotMascot.classList.add('robot-active'); 
             }
             function setAIOnline() {
                 aiStatusEl.textContent = "Online";
                 aiStatusEl.classList.remove("text-cyan-300");
                 aiPulseEl.classList.remove("ai-thinking");
-                if (robotMascot) robotMascot.classList.remove('robot-active'); // NEW
+                if (robotMascot) robotMascot.classList.remove('robot-active');
             }
             
-            // --- NEW: Speaking status controls ---
+            // Speaking status controls (NOW with robot)
             function setAISpeaking() {
                 aiStatusEl.textContent = "Speaking...";
                 aiStatusEl.classList.add("text-cyan-300");
                 aiAvatarImg.classList.add('ai-speaking');
-                if (robotMascot) robotMascot.classList.add('robot-active'); // NEW
+                if (robotMascot) robotMascot.classList.add('robot-active');
             }
             function setAIDoneSpeaking() {
                 aiStatusEl.textContent = "Online";
                 aiStatusEl.classList.remove("text-cyan-300");
                 aiAvatarImg.classList.remove('ai-speaking');
-                if (robotMascot) robotMascot.classList.remove('robot-active'); // NEW
+                if (robotMascot) robotMascot.classList.remove('robot-active');
             }
 
 
             // delay helper
             const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            
+            // --- Audio Playback Logic ---
+            const playAudio = (text) => {
+                return new Promise(async (resolve, reject) => {
+                    if (isSpeaking && currentAudio) {
+                        currentAudio.pause(); // Stop previous speech
+                    }
+                    isSpeaking = true;
+                    
+                    const ttsPayload = {
+                        input: { text: text },
+                        voice: { languageCode: 'en-US', ssmlGender: 'MALE' },
+                        audioConfig: { audioEncoding: 'MP3' }
+                    };
+                    
+                    setAISpeaking();
+                    
+                    try {
+                        const response = await fetchWithBackoff(TTS_API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(ttsPayload)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok || !data.audioContent) {
+                            console.error("TTS API error:", data);
+                            throw new Error(data.error?.message || "Failed to generate audio.");
+                        }
+
+                        currentAudio = new Audio("data:audio/mp3;base64," + data.audioContent);
+                        
+                        currentAudio.onended = () => {
+                            isSpeaking = false;
+                            setAIDoneSpeaking();
+                            resolve(); // Resolve promise when audio finishes
+                        };
+                        
+                        currentAudio.onerror = (e) => {
+                            console.error("Error playing audio:", e);
+                            isSpeaking = false;
+                            setAIDoneSpeaking();
+                            reject(e); // Reject promise on error
+                        };
+
+                        await currentAudio.play();
+                        
+                    } catch (err) {
+                        console.error("Error in playAudio:", err);
+                        setAIDoneSpeaking();
+                        reject(err); // Reject promise on error
+                    }
+                });
+            };
 
             // Retry/backoff wrapper
             const fetchWithBackoff = async (url, options, maxRetries = 3) => {
@@ -1495,8 +1510,8 @@
                 while (attempt < maxRetries) {
                     try {
                         const response = await fetch(url, options);
-                        if (response.ok ||
-                            (response.status >= 400 && response.status < 500 && response.status !== 429)) {
+                        // 403 (Permission Denied) is not retryable
+                        if (response.ok || (response.status >= 400 && response.status < 500 && response.status !== 429 && response.status !== 403)) {
                             return response;
                         }
                         if (response.status === 429 || response.status >= 500) {
@@ -1516,92 +1531,18 @@
                 throw new Error("Max retries reached");
             };
 
-            // --- NEW: Play Audio Function ---
-            const playAudio = (text) => {
-                // Return a promise so we can await its completion
-                return new Promise(async (resolve, reject) => {
-                    if (isSpeaking) {
-                        currentAudio.pause();
-                        isSpeaking = false;
-                    }
-                    
-                    setAISpeaking(); // NEW
-                    
-                    try {
-                        const ttsPayload = {
-                            contents: [{ parts: [{ text: `Say cheerfully: ${text}` }] }], // Add style
-                            generationConfig: {
-                                responseModalities: ["AUDIO"],
-                                speechConfig: {
-                                    voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } // A good, firm voice
-                                }
-                            },
-                            model: "gemini-2.5-flash-preview-tts"
-                        };
-
-                        const response = await fetchWithBackoff(GEMINI_TTS_API_URL, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(ttsPayload)
-                        });
-
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            console.error("TTS API error:", data);
-                            throw new Error(data.error?.message || "TTS Request Failed");
-                        }
-
-                        const part = data?.candidates?.[0]?.content?.parts?.[0];
-                        const audioData = part?.inlineData?.data;
-                        const mimeType = part?.inlineData?.mimeType;
-
-                        if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                            const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
-                            const pcmData = base64ToArrayBuffer(audioData);
-                            const wavBlob = pcmToWav(pcmData, sampleRate);
-                            const audioUrl = URL.createObjectURL(wavBlob);
-                            
-                            currentAudio = new Audio(audioUrl);
-                            isSpeaking = true;
-                            
-                            currentAudio.onended = () => {
-                                isSpeaking = false;
-                                setAIDoneSpeaking(); // NEW
-                                resolve(); // Resolve promise when audio finishes
-                            };
-                            
-                            currentAudio.onerror = (e) => {
-                                console.error("Error playing audio:", e);
-                                isSpeaking = false;
-                                setAIDoneSpeaking(); // NEW
-                                reject(e); // Reject promise on error
-                            };
-
-                            currentAudio.play();
-
-                        } else {
-                            throw new Error("No valid audio data in TTS response.");
-                        }
-                    } catch (err) {
-                        console.error("Error in playAudio:", err);
-                        setAIDoneSpeaking(); // NEW
-                        reject(err); // Reject promise on error
-                    }
-                });
-            };
-
-
-            // --- Main model call (Updated) ---
+            // Main model call
             const fetchGeminiResponse = async (userQuery) => {
                 showTypingIndicator();
                 setAIThinking();
                 chatbotSendButton.disabled = true;
 
+                // Developer forgot to set a real key
                 if (GEMINI_API_KEY === "YOUR_NEW_API_KEY_GOES_HERE") {
                     hideTypingIndicator();
                     setAIOnline();
-                    renderMessage({ role: 'assistant', content: "Chatbot not configured (Missing API key).", isError: true });
+                    const errorMsg = "Chatbot not configured (Missing API key). Please add your API key to index.html.";
+                    renderMessage({ role: 'assistant', content: errorMsg, isError: true });
                     chatbotSendButton.disabled = false;
                     return;
                 }
@@ -1617,12 +1558,10 @@
                 };
 
                 try {
-                    const response = await fetchWithBackoff(GEMINI_TEXT_API_URL, requestOptions);
+                    const response = await fetchWithBackoff(GEMINI_API_URL, requestOptions);
                     const data = await response.json();
 
                     hideTypingIndicator();
-                    // Set to "Online" *after* getting text, before playing audio
-                    setAIOnline(); 
 
                     if (!response.ok) {
                         console.error("Gemini API error:", data);
@@ -1631,6 +1570,8 @@
                            errorMsg = data.error.message;
                            if (errorMsg.includes("API_KEY_HTTP_REFERRER_BLOCKED") || errorMsg.includes("Requests from referer") ) {
                                errorMsg = "Error: This website domain is not authorized to use the API key. Please check the key restrictions in Google Cloud Console.";
+                           } else if (response.status === 403) {
+                               errorMsg = "Error: API key is invalid or permissions are denied. Please check your key.";
                            }
                         } 
                         throw new Error(errorMsg);
@@ -1641,9 +1582,9 @@
                     if (text) {
                         const assistantMessage = { role: "assistant", content: text };
                         messages.push(assistantMessage);
-                        renderAssistantStreaming(text); // Render text with typewriter
+                        renderAssistantStreaming(text); // Use streaming renderer
                         
-                        // --- NEW: Play the audio ---
+                        // Speak the response
                         await playAudio(text); // Wait for the audio to finish playing
 
                     } else {
@@ -1653,7 +1594,6 @@
                 } catch (err) {
                     console.error("Error in fetchGeminiResponse:", err);
                     hideTypingIndicator();
-                    setAIOnline(); // Ensure we go back to online state on error
                     
                     const displayError = err.message.startsWith("Error:") ? err.message : 
                         "Sorry, I couldn’t reach the AI right now. Please try again later or contact Ahmad directly.";
@@ -1666,10 +1606,13 @@
                     messages.push(errorMessage);
                     renderMessage(errorMessage);
                 } finally {
-                    // This runs after try/catch, even after await playAudio()
-                    setAIOnline(); // This is fine, will be overridden by speaking if needed
+                    // This will run after try/catch, even after await playAudio()
+                    // If audio is still playing, setAIOnline will be called after it finishes
+                    if (!isSpeaking) {
+                        setAIOnline();
+                    }
                     chatbotSendButton.disabled = false;
-                    if (!recognizing) chatbotInput.focus();
+                    chatbotInput.focus();
                 }
             };
 
@@ -1689,7 +1632,7 @@
             chatbotForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const userInput = chatbotInput.value.trim();
-                if (!userInput || isSpeaking) return; // Don't submit if empty or already speaking
+                if (!userInput) return;
 
                 renderMessage({ role: 'user', content: userInput });
                 messages.push({ role: 'user', content: userInput });
@@ -1698,7 +1641,7 @@
                 await fetchGeminiResponse(userInput);
             });
 
-            // --- Voice input logic via Web Speech API (Chrome etc.) ---
+            // Voice input logic via Web Speech API (Chrome etc.)
             let recognizing = false;
             let recognition;
 
@@ -1740,8 +1683,8 @@
                     // Show interim results live, finalize on final
                     chatbotInput.value = finalTranscript || interimTranscript; 
                      if (finalTranscript) {
-                         // Automatically submit when speech ends and is final
-                         chatbotForm.requestSubmit(); 
+                         // Optionally auto-submit when speech ends and is final
+                         // chatbotForm.requestSubmit(); 
                      }
                 };
 
@@ -1766,6 +1709,125 @@
                 voiceButton.title = "Voice not supported in this browser";
                 voiceButton.classList.add("opacity-40","cursor-not-allowed");
             }
+
+            // --- NEW: AI Playground Logic ---
+            const playgroundButton = document.getElementById('playground-button');
+            const playgroundStatus = document.getElementById('playground-status');
+            const videoContainer = document.getElementById('playground-video-container');
+            const video = document.getElementById('playground-video');
+            const detectionsContainer = document.getElementById('playground-detections');
+            let model = null;
+            let isDetecting = false;
+            let animationFrameId = null;
+
+            async function runObjectDetection() {
+                if (isDetecting) {
+                    // Stop the webcam
+                    if (video.srcObject) {
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                    }
+                    if (animationFrameId) {
+                        cancelAnimationFrame(animationFrameId);
+                    }
+                    isDetecting = false;
+                    videoContainer.classList.add('hidden');
+                    playgroundButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                        Start Webcam
+                    `;
+                    playgroundStatus.textContent = "Click the button to load the model and start your webcam.";
+                    return;
+                }
+
+                try {
+                    playgroundStatus.textContent = "Loading AI model (coco-ssd)...";
+                    
+                    // Load the model
+                    if (!model) {
+                        model = await cocoSsd.load();
+                    }
+                    
+                    playgroundStatus.textContent = "Requesting webcam access...";
+
+                    // Start webcam
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'user' } 
+                    });
+                    video.srcObject = stream;
+                    
+                    await new Promise((resolve) => {
+                        video.onloadedmetadata = () => {
+                            video.play();
+                            resolve();
+                        };
+                    });
+                    
+                    videoContainer.classList.remove('hidden');
+                    isDetecting = true;
+                    playgroundButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-off"><line x1="1" x2="23" y1="1" y2="23"/><path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l2.5-3 3 0L14 5h4.5a2 2 0 0 1 1.73 1"/></svg>
+                        Stop Webcam
+                    `;
+                    playgroundStatus.textContent = "Detecting objects in real-time...";
+
+                    // Start detection loop
+                    detectFrame();
+
+                } catch (err) {
+                    console.error("Error in AI Playground:", err);
+                    playgroundStatus.textContent = `Error: ${err.message}. Please check permissions.`;
+                    isDetecting = false;
+                }
+            }
+            
+            async function detectFrame() {
+                if (!isDetecting) return;
+                
+                const predictions = await model.detect(video);
+                
+                // Clear old boxes
+                detectionsContainer.innerHTML = '';
+                
+                // Get video container size for scaling
+                const containerWidth = videoContainer.clientWidth;
+                const containerHeight = videoContainer.clientHeight;
+                
+                predictions.forEach(prediction => {
+                    // Create bounding box
+                    const box = document.createElement('div');
+                    box.classList.add('detection-box');
+                    
+                    // Create label
+                    const label = document.createElement('div');
+                    label.classList.add('detection-label');
+                    label.textContent = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
+                    
+                    box.appendChild(label);
+                    
+                    // Calculate and set position
+                    // Remember, video is flipped (scaleX(-1))
+                    const [x, y, width, height] = prediction.bbox;
+                    const scaledX = (containerWidth - x - width) / containerWidth * 100; // Flipped X
+                    const scaledY = y / containerHeight * 100;
+                    const scaledWidth = (width / containerWidth) * 100;
+                    const scaledHeight = (height / containerHeight) * 100;
+
+                    box.style.left = `${scaledX}%`;
+                    box.style.top = `${scaledY}%`;
+                    box.style.width = `${scaledWidth}%`;
+                    box.style.height = `${scaledHeight}%`;
+                    
+                    detectionsContainer.appendChild(box);
+                });
+
+                // Loop
+                animationFrameId = requestAnimationFrame(detectFrame);
+            }
+
+            if (playgroundButton) {
+                playgroundButton.addEventListener('click', runObjectDetection);
+            }
+
         });
     </script>
 
