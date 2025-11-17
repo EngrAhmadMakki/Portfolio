@@ -154,6 +154,57 @@
         .animate-pulse-slow {
             animation: pulseSlow 4s ease-in-out infinite;
         }
+
+        /* Floating robot base position + float animation */
+        #floating-robot {
+            bottom: 7rem;        /* initial position */
+            right: 1.5rem;
+            z-index: 70;
+            animation: robotFloat 4s ease-in-out infinite;
+            transition:
+                top 0.4s ease,
+                bottom 0.4s ease,
+                left 0.4s ease,
+                right 0.4s ease,
+                transform 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        #floating-robot:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.8);
+        }
+
+        /* gentle floating */
+        @keyframes robotFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+
+        /* quick jump effect when moving to new section */
+        .robot-jump {
+            animation: robotJump 0.35s ease-out;
+        }
+
+        @keyframes robotJump {
+            0%   { transform: scale(0.8) translateY(8px); opacity: 0.4; }
+            60%  { transform: scale(1.1) translateY(-4px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Fun: wave the right arm a bit */
+        #robot-arm-right {
+            transform-origin: 60px 44px; /* adjust if wave looks weird */
+            animation: robotWave 2.6s ease-in-out infinite 1s;
+        }
+
+        @keyframes robotWave {
+            0%, 100% { transform: rotate(0deg); }
+            40%      { transform: rotate(10deg); }
+            50%      { transform: rotate(-4deg); }
+            60%      { transform: rotate(8deg); }
+        }
+
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200">
@@ -878,6 +929,71 @@
         </div>
     </footer>
     
+    <!-- Floating AI Robot Mascot -->
+    <div id="floating-robot"
+         class="fixed z-[70] w-16 h-24 cursor-pointer"
+         title="Click to explore Ahmad's portfolio with the AI bot">
+      <svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Glow circle behind robot -->
+        <defs>
+          <radialGradient id="robotGlow" cx="50%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="40" cy="40" r="38" fill="url(#robotGlow)" opacity="0.7"/>
+
+        <!-- Antenna -->
+        <line x1="40" y1="6" x2="40" y2="14" stroke="#22d3ee" stroke-width="2"/>
+        <circle cx="40" cy="3" r="3" fill="#22d3ee"/>
+
+        <!-- Head -->
+        <rect x="22" y="16" width="36" height="22" rx="6"
+              fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+        <!-- Eyes -->
+        <circle cx="32" cy="27" r="3" fill="#e2e8f0" id="robot-eye-left"/>
+        <circle cx="48" cy="27" r="3" fill="#e2e8f0" id="robot-eye-right"/>
+        <!-- Mouth -->
+        <rect x="30" y="32" width="20" height="3" rx="1.5" fill="#38bdf8"/>
+
+        <!-- Body -->
+        <rect x="20" y="40" width="40" height="34" rx="8"
+              fill="#020617" stroke="#38bdf8" stroke-width="2"/>
+
+        <!-- Chest panel -->
+        <rect x="26" y="46" width="28" height="10" rx="3" fill="#0f172a" stroke="#22d3ee" stroke-width="1.5"/>
+        <circle cx="30" cy="51" r="2" fill="#22d3ee"/>
+        <circle cx="36" cy="51" r="2" fill="#a855f7"/>
+        <circle cx="42" cy="51" r="2" fill="#f97316"/>
+
+        <!-- Progress bar -->
+        <rect x="28" y="60" width="24" height="6" rx="3" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+        <rect x="28" y="60" width="15" height="6" rx="3" fill="#22d3ee"/>
+
+        <!-- Arms -->
+        <g id="robot-arm-right">
+          <rect x="58" y="44" width="10" height="6" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+          <rect x="66" y="44" width="6" height="16" rx="3" fill="#020617" stroke="#38bdf8" stroke-width="2"/>
+          <circle cx="69" cy="62" r="3" fill="#38bdf8"/>
+        </g>
+        <g id="robot-arm-left">
+          <rect x="12" y="44" width="10" height="6" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+          <rect x="8" y="44" width="6" height="16" rx="3" fill="#020617" stroke="#38bdf8" stroke-width="2"/>
+          <circle cx="11" cy="62" r="3" fill="#38bdf8"/>
+        </g>
+
+        <!-- Legs -->
+        <rect x="26" y="74" width="8" height="16" rx="3"
+              fill="#020617" stroke="#38bdf8" stroke-width="2"/>
+        <rect x="46" y="74" width="8" height="16" rx="3"
+              fill="#020617" stroke="#38bdf8" stroke-width="2"/>
+
+        <!-- Feet -->
+        <rect x="23" y="88" width="14" height="5" rx="2" fill="#38bdf8"/>
+        <rect x="43" y="88" width="14" height="5" rx="2" fill="#38bdf8"/>
+      </svg>
+    </div>
+
     <!-- Chatbot Widget -->
     <div class="fixed bottom-6 right-6 z-[60]">
         <!-- Ambient AI glow -->
@@ -1106,6 +1222,74 @@
             }
             window.addEventListener('scroll', onScroll);
             onScroll(); // run once
+
+            // --- Floating Robot: move between sections & scroll on click ---
+            const robot = document.getElementById('floating-robot');
+            if (robot) {
+                // Sections the robot will "visit" in order
+                const robotStops = [
+                    { sectionId: 'hero',       align: 'right', offsetY: 120 },
+                    { sectionId: 'skills',     align: 'left',  offsetY: 100 },
+                    { sectionId: 'projects',   align: 'right', offsetY: 160 },
+                    { sectionId: 'gettintouch',align: 'left',  offsetY: 120 }
+                ];
+
+                let stopIndex = 0;
+
+                function moveRobotToCurrentStop() {
+                    const stop = robotStops[stopIndex];
+                    const section = document.getElementById(stop.sectionId);
+                    if (!section) return;
+
+                    const rect = section.getBoundingClientRect();
+                    const viewTop = window.scrollY;
+
+                    // target vertical position: a bit below the section top
+                    const absoluteY = viewTop + rect.top + stop.offsetY;
+                    const topInViewport = absoluteY - window.scrollY;
+
+                    // keep robot inside viewport
+                    const clampedTop = Math.max(80, Math.min(window.innerHeight - 120, topInViewport));
+
+                    // clear previous edges
+                    robot.style.top = clampedTop + 'px';
+                    robot.style.bottom = '';
+                    robot.style.left = '';
+                    robot.style.right = '';
+
+                    if (stop.align === 'left') {
+                        robot.style.left = '1.2rem';
+                    } else {
+                        robot.style.right = '1.2rem';
+                    }
+
+                    // trigger jump animation
+                    robot.classList.remove('robot-jump');
+                    void robot.offsetWidth; // force reflow
+                    robot.classList.add('robot-jump');
+                }
+
+                // initial placement after load
+                setTimeout(moveRobotToCurrentStop, 700);
+
+                // every 12 seconds, move to next stop
+                setInterval(() => {
+                    stopIndex = (stopIndex + 1) % robotStops.length;
+                    moveRobotToCurrentStop();
+                }, 12000);
+
+                // clicking the robot scrolls to the current section (and also re-jumps)
+                robot.addEventListener('click', () => {
+                    const stop = robotStops[stopIndex];
+                    const section = document.getElementById(stop.sectionId);
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // little delay then re-place in case of viewport change
+                        setTimeout(moveRobotToCurrentStop, 600);
+                    }
+                });
+            }
+
 
             // --- Chatbot Logic ---
             const chatbotToggleButton = document.getElementById('chatbot-toggle-button');
