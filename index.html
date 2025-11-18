@@ -29,6 +29,9 @@
     <!-- NEW: TensorFlow.js & COCO-SSD Model -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@latest/dist/coco-ssd.min.js"></script>
+    <!-- Pose Estimation & Segmentation Models -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
     
     <style>
         body {
@@ -165,10 +168,10 @@
             right: 1.5rem;
             z-index: 70;
             animation: robotFloat 4s ease-in-out infinite;
-            transition:
-                top 0.4s ease,
-                bottom 0.4s ease,
-                left 0.4s ease,
+            transition: 
+                top 0.4s ease, 
+                bottom 0.4s ease, 
+                left 0.4s ease, 
                 right 0.4s ease,
                 transform 0.3s ease,
                 box-shadow 0.3s ease;
@@ -672,20 +675,130 @@
         <section id="ai-playground" class="py-16 md:py-24">
             <div class="text-center">
                 <h2 class="text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">AI Playground</h2>
-                <p class="mt-4 text-lg text-cyan-400">Live In-Browser AI Demo</p>
-                <p class="mt-2 text-sm text-slate-400 max-w-xl mx-auto">This demo uses TensorFlow.js to run a real-time object detection model (COCO-SSD) entirely in your browser. Nothing is sent to a server.</p>
+                <p class="mt-4 text-lg text-cyan-400">Live In-Browser AI Demos</p>
+                <p class="mt-2 text-sm text-slate-400 max-w-xl mx-auto">
+                    All demos run directly in your browser using TensorFlow.js. No server calls, no data leaves your device.
+                </p>
             </div>
-            <div class="mt-12 max-w-2xl mx-auto bg-slate-800/50 p-6 rounded-2xl shadow-xl border border-slate-700/50">
-                <div class="text-center mb-4">
-                    <button id="webcam-button" class="inline-flex items-center gap-2 bg-cyan-500 text-slate-900 font-bold px-6 py-3 rounded-lg text-base shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:scale-105">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-                        Start Webcam
-                    </button>
-                    <p id="model-status" class="text-sm text-slate-500 mt-3 h-4"></p>
+
+            <div class="mt-12 max-w-6xl mx-auto grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+
+                <!-- Demo 1: Object Detection (COCO-SSD) -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl shadow-xl border border-slate-700/50 flex flex-col">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-2">Object Detection</h3>
+                    <p class="text-xs text-slate-400 mb-4">
+                        COCO-SSD model detects everyday objects in real-time from your webcam feed.
+                    </p>
+                    <div class="text-center mb-4">
+                        <button id="webcam-button"
+                                class="inline-flex items-center gap-2 bg-cyan-500 text-slate-900 font-bold px-4 py-2 rounded-lg text-xs shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:scale-105">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 class="lucide lucide-camera">
+                                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                                <circle cx="12" cy="13" r="3"/>
+                            </svg>
+                            Start / Stop
+                        </button>
+                        <p id="model-status" class="text-[11px] text-slate-500 mt-2 h-4"></p>
+                    </div>
+                    <div class="relative w-full aspect-video bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                        <video id="webcam-feed" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                        <canvas id="detection-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
                 </div>
-                <div class="relative w-full aspect-video bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
-                    <video id="webcam-feed" autoplay muted playsinline class="w-full h-full object-cover"></video>
-                    <canvas id="detection-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+
+                <!-- Demo 2: Pose Estimation (MoveNet) -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl shadow-xl border border-slate-700/50 flex flex-col">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-2">Pose Estimation</h3>
+                    <p class="text-xs text-slate-400 mb-4">
+                        MoveNet estimates your body keypoints and draws a live skeleton overlay.
+                    </p>
+                    <div class="text-center mb-4">
+                        <button id="pose-button"
+                                class="inline-flex items-center gap-2 bg-cyan-500 text-slate-900 font-bold px-4 py-2 rounded-lg text-xs shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:scale-105">
+                            Start / Stop
+                        </button>
+                        <p id="pose-status" class="text-[11px] text-slate-500 mt-2 h-4"></p>
+                    </div>
+                    <div class="relative w-full aspect-video bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                        <video id="pose-video" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                        <canvas id="pose-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Demo 3: Person Segmentation (BodyPix) -->
+                <div class="bg-slate-800/50 p-6 rounded-2xl shadow-xl border border-slate-700/50 flex flex-col">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-2">Person Segmentation</h3>
+                    <p class="text-xs text-slate-400 mb-4">
+                        BodyPix segments you from the background and highlights the person region.
+                    </p>
+                    <div class="text-center mb-4">
+                        <button id="seg-button"
+                                class="inline-flex items-center gap-2 bg-cyan-500 text-slate-900 font-bold px-4 py-2 rounded-lg text-xs shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:scale-105">
+                            Start / Stop
+                        </button>
+                        <p id="seg-status" class="text-[11px] text-slate-500 mt-2 h-4"></p>
+                    </div>
+                    <div class="relative w-full aspect-video bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                        <video id="seg-video" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                        <canvas id="seg-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- NEW: Resume & JD Analyzer Section -->
+        <section id="resume-analyzer" class="py-16 md:py-24 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">
+                    AI Resume & JD Match Analyzer
+                </h2>
+                <p class="mt-4 text-lg text-cyan-400">
+                    Paste a Job Description and your Resume – let my AI estimate the fit.
+                </p>
+                <p class="mt-2 text-sm text-slate-400 max-w-2xl mx-auto">
+                    This uses the same Gemini model I integrate into client projects. All processing happens via API; nothing is stored on my server.
+                </p>
+            </div>
+
+            <div class="mt-10 max-w-5xl mx-auto grid gap-8 md:grid-cols-2">
+                <!-- JD -->
+                <div>
+                    <label for="jd-input" class="block text-sm font-medium text-slate-200 mb-2">
+                        Job Description
+                    </label>
+                    <textarea id="jd-input" rows="10"
+                        class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                        placeholder="Paste the JD here..."></textarea>
+                </div>
+                <!-- Resume -->
+                <div>
+                    <label for="resume-input" class="block text-sm font-medium text-slate-200 mb-2">
+                        Your Resume (Text)
+                    </label>
+                    <textarea id="resume-input" rows="10"
+                        class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                        placeholder="Paste your resume content here..."></textarea>
+                </div>
+            </div>
+
+            <div class="mt-6 max-w-5xl mx-auto flex flex-col md:flex-row items-start gap-4">
+                <button id="analyze-resume-button"
+                    class="inline-flex items-center gap-2 bg-cyan-500 text-slate-900 font-bold px-6 py-3 rounded-lg text-sm shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:scale-105">
+                    Analyze Match
+                </button>
+                <p class="text-xs text-slate-500">
+                    Tip: This is a demo. In real projects, I plug similar flows into ATS or internal HR tools.
+                </p>
+            </div>
+
+            <div class="mt-8 max-w-5xl mx-auto bg-slate-900/70 border border-slate-700/70 rounded-2xl p-6">
+                <h3 class="text-sm font-semibold text-cyan-400 mb-2">AI Analysis</h3>
+                <div id="resume-analysis-output" class="text-sm text-slate-200 whitespace-pre-wrap min-h-[4rem]">
+                    Paste a JD and your resume, then click “Analyze Match”.
                 </div>
             </div>
         </section>
@@ -711,7 +824,7 @@
                 </div>
                 <!-- Education 2 -->
                 <div class="bg-slate-800/50 p-6 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-[1.03] hover:shadow-cyan-500/20 border border-slate-700/50 hover:bg-slate-800">
-                     <h3 class="text-xl font-semibold text-slate-100 flex items-center gap-2">
+                      <h3 class="text-xl font-semibold text-slate-100 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap text-cyan-400"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.084a1 1 0 0 0 0 1.838l8.57 3.908a2 2 0 0 0 1.66 0l8.59-3.908Z"/><path d="M6 12v5c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2v-5"/><path d="M18 12.472v-1.445L14 12.87v4.358"/></svg>
                         B.Sc, Electrical Engineering
                     </h3>
@@ -2015,6 +2128,330 @@
                     await startWebcam(); // Start webcam and detection loop
                 }
             });
+
+            // --- Pose Estimation Demo (MoveNet) ---
+            const poseVideo = document.getElementById('pose-video');
+            const poseCanvas = document.getElementById('pose-canvas');
+            const poseButton = document.getElementById('pose-button');
+            const poseStatus = document.getElementById('pose-status');
+            const poseCtx = poseCanvas.getContext('2d');
+
+            let poseModel = null;
+            let poseAnimId = null;
+            let poseStream = null;
+
+            async function loadPoseModel() {
+                if (poseModel) return poseModel;
+                poseStatus.textContent = 'Loading pose model...';
+                try {
+                    poseModel = await poseDetection.createDetector(
+                        poseDetection.SupportedModels.MoveNet,
+                        { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+                    );
+                    poseStatus.textContent = 'Model ready.';
+                } catch (err) {
+                    console.error('Error loading pose model:', err);
+                    poseStatus.textContent = 'Error loading pose model.';
+                }
+                return poseModel;
+            }
+
+            async function startPoseWebcam() {
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    poseStatus.textContent = 'Webcam not supported.';
+                    return;
+                }
+                try {
+                    poseStream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                    });
+                    poseVideo.srcObject = poseStream;
+                    poseVideo.onloadedmetadata = () => {
+                        poseCanvas.width = poseVideo.videoWidth;
+                        poseCanvas.height = poseVideo.videoHeight;
+                        poseStatus.textContent = 'Detecting pose...';
+                        runPoseDetection();
+                    };
+                } catch (err) {
+                    console.error('Error starting pose webcam:', err);
+                    poseStatus.textContent = 'Error accessing webcam.';
+                }
+            }
+
+            const poseConnections = [
+                ['left_shoulder', 'right_shoulder'],
+                ['left_shoulder', 'left_elbow'],
+                ['left_elbow', 'left_wrist'],
+                ['right_shoulder', 'right_elbow'],
+                ['right_elbow', 'right_wrist'],
+                ['left_shoulder', 'left_hip'],
+                ['right_shoulder', 'right_hip'],
+                ['left_hip', 'right_hip'],
+                ['left_hip', 'left_knee'],
+                ['left_knee', 'left_ankle'],
+                ['right_hip', 'right_knee'],
+                ['right_knee', 'right_ankle'],
+            ];
+
+            function drawPose(keypoints) {
+                poseCtx.clearRect(0, 0, poseCanvas.width, poseCanvas.height);
+                poseCtx.lineWidth = 3;
+                poseCtx.strokeStyle = '#22d3ee';
+                poseCtx.fillStyle = '#22d3ee';
+
+                const kpByName = {};
+                keypoints.forEach(kp => {
+                    kpByName[kp.name] = kp;
+                    if (kp.score > 0.4) {
+                        poseCtx.beginPath();
+                        poseCtx.arc(kp.x, kp.y, 4, 0, 2 * Math.PI);
+                        poseCtx.fill();
+                    }
+                });
+
+                poseConnections.forEach(([a, b]) => {
+                    const kp1 = kpByName[a];
+                    const kp2 = kpByName[b];
+                    if (kp1 && kp2 && kp1.score > 0.4 && kp2.score > 0.4) {
+                        poseCtx.beginPath();
+                        poseCtx.moveTo(kp1.x, kp1.y);
+                        poseCtx.lineTo(kp2.x, kp2.y);
+                        poseCtx.stroke();
+                    }
+                });
+            }
+
+            async function runPoseDetection() {
+                if (!poseModel) {
+                    await loadPoseModel();
+                    if (!poseModel) return;
+                }
+                const estimate = async () => {
+                    if (!poseVideo || poseVideo.readyState < 2) {
+                        poseAnimId = requestAnimationFrame(estimate);
+                        return;
+                    }
+                    try {
+                        const poses = await poseModel.estimatePoses(poseVideo);
+                        if (poses && poses[0] && poses[0].keypoints) {
+                            drawPose(poses[0].keypoints);
+                        } else {
+                            poseCtx.clearRect(0, 0, poseCanvas.width, poseCanvas.height);
+                        }
+                    } catch (err) {
+                        console.error('Pose detection error:', err);
+                    }
+                    poseAnimId = requestAnimationFrame(estimate);
+                };
+                estimate();
+            }
+
+            function stopPoseDemo() {
+                if (poseAnimId) cancelAnimationFrame(poseAnimId);
+                poseAnimId = null;
+                poseCtx.clearRect(0, 0, poseCanvas.width, poseCanvas.height);
+                if (poseStream) {
+                    poseStream.getTracks().forEach(t => t.stop());
+                    poseStream = null;
+                }
+                poseVideo.srcObject = null;
+                poseStatus.textContent = 'Stopped.';
+            }
+
+            if (poseButton) {
+                poseButton.addEventListener('click', async () => {
+                    if (poseAnimId || poseStream) {
+                        stopPoseDemo();
+                    } else {
+                        await loadPoseModel();
+                        await startPoseWebcam();
+                    }
+                });
+            }
+
+            // --- Person Segmentation Demo (BodyPix) ---
+            const segVideo = document.getElementById('seg-video');
+            const segCanvas = document.getElementById('seg-canvas');
+            const segButton = document.getElementById('seg-button');
+            const segStatus = document.getElementById('seg-status');
+            const segCtx = segCanvas.getContext('2d');
+
+            let bodyPixModel = null;
+            let segAnimId = null;
+            let segStream = null;
+
+            async function loadBodyPixModel() {
+                if (bodyPixModel) return bodyPixModel;
+                segStatus.textContent = 'Loading segmentation model...';
+                try {
+                    bodyPixModel = await bodyPix.load({
+                        architecture: 'MobileNetV1',
+                        outputStride: 16,
+                        multiplier: 0.75,
+                        quantBytes: 2
+                    });
+                    segStatus.textContent = 'Model ready.';
+                } catch (err) {
+                    console.error('Error loading BodyPix model:', err);
+                    segStatus.textContent = 'Error loading model.';
+                }
+                return bodyPixModel;
+            }
+
+            async function startSegWebcam() {
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    segStatus.textContent = 'Webcam not supported.';
+                    return;
+                }
+                try {
+                    segStream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                    });
+                    segVideo.srcObject = segStream;
+                    segVideo.onloadedmetadata = () => {
+                        segCanvas.width = segVideo.videoWidth;
+                        segCanvas.height = segVideo.videoHeight;
+                        segStatus.textContent = 'Segmenting person...';
+                        runSegmentation();
+                    };
+                } catch (err) {
+                    console.error('Error starting segmentation webcam:', err);
+                    segStatus.textContent = 'Error accessing webcam.';
+                }
+            }
+
+            async function runSegmentation() {
+                if (!bodyPixModel) {
+                    await loadBodyPixModel();
+                    if (!bodyPixModel) return;
+                }
+
+                const step = async () => {
+                    if (!segVideo || segVideo.readyState < 2) {
+                        segAnimId = requestAnimationFrame(step);
+                        return;
+                    }
+                    try {
+                        const segmentation = await bodyPixModel.segmentPerson(segVideo, {
+                            internalResolution: 'medium',
+                            segmentationThreshold: 0.7
+                        });
+
+                        segCtx.drawImage(segVideo, 0, 0, segCanvas.width, segCanvas.height);
+
+                        const mask = bodyPix.toMask(
+                            segmentation,
+                            { r: 34, g: 211, b: 238, a: 200 },  // person: cyan
+                            { r: 15, g: 23, b: 42, a: 120 }      // background: dark
+                        );
+
+                        segCtx.putImageData(mask, 0, 0);
+                    } catch (err) {
+                        console.error('Segmentation error:', err);
+                    }
+                    segAnimId = requestAnimationFrame(step);
+                };
+                step();
+            }
+
+            function stopSegDemo() {
+                if (segAnimId) cancelAnimationFrame(segAnimId);
+                segAnimId = null;
+                segCtx.clearRect(0, 0, segCanvas.width, segCanvas.height);
+                if (segStream) {
+                    segStream.getTracks().forEach(t => t.stop());
+                    segStream = null;
+                }
+                segVideo.srcObject = null;
+                segStatus.textContent = 'Stopped.';
+            }
+
+            if (segButton) {
+                segButton.addEventListener('click', async () => {
+                    if (segAnimId || segStream) {
+                        stopSegDemo();
+                    } else {
+                        await loadBodyPixModel();
+                        await startSegWebcam();
+                    }
+                });
+            }
+
+            // --- Resume & JD Analyzer (Gemini) ---
+            const analyzeBtn = document.getElementById('analyze-resume-button');
+            const jdInput = document.getElementById('jd-input');
+            const resumeInput = document.getElementById('resume-input');
+            const resumeOutput = document.getElementById('resume-analysis-output');
+
+            if (analyzeBtn && jdInput && resumeInput && resumeOutput) {
+                analyzeBtn.addEventListener('click', async () => {
+                    const jdText = jdInput.value.trim();
+                    const resumeText = resumeInput.value.trim();
+
+                    if (!jdText || !resumeText) {
+                        resumeOutput.textContent = 'Please paste both the Job Description and your Resume text first.';
+                        return;
+                    }
+
+                    resumeOutput.textContent = 'Analyzing with Gemini...';
+
+                    const analysisPrompt = `
+            You are an AI career assistant embedded in an ML engineer's personal portfolio site.
+
+            TASK:
+            1. Estimate match between the candidate's resume and the job description (0–100%).
+            2. List 3–5 key strengths where the candidate matches the JD.
+            3. List 3–5 gaps or missing skills.
+            4. Suggest 3 concrete resume bullet points the candidate can add to better fit this JD.
+
+            Return in a clean, readable format with headings.
+
+            JOB DESCRIPTION:
+            ${jdText}
+
+            RESUME:
+            ${resumeText}
+                    `.trim();
+
+                    try {
+                        const response = await fetchWithBackoff(GEMINI_TEXT_API_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                contents: [
+                                    {
+                                        role: "user",
+                                        parts: [{ text: analysisPrompt }]
+                                    }
+                                ]
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            console.error('Resume analyzer error:', data);
+                            let msg = data.error?.message || `Request failed with status ${response.status}`;
+                            if (msg.includes("API_KEY_HTTP_REFERRER_BLOCKED")) {
+                                msg = "Domain is not authorized for this API key. Please adjust key restrictions in Google Cloud Console.";
+                            }
+                            resumeOutput.textContent = msg;
+                            return;
+                        }
+
+                        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                        if (!text) {
+                            resumeOutput.textContent = 'Empty response from model.';
+                            return;
+                        }
+
+                        resumeOutput.textContent = text;
+                    } catch (err) {
+                        console.error('Error in resume analyzer:', err);
+                        resumeOutput.textContent = 'Error: Could not reach Gemini. Please try again later.';
+                    }
+                });
+            }
 
         });
     </script>
