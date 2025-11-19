@@ -203,7 +203,6 @@
                     <a href="#experience" class="block px-3 py-2 text-base font-medium text-slate-300 hover:text-cyan-400 font-tech">Experience</a>
                     <a href="#projects" class="block px-3 py-2 text-base font-medium text-slate-300 hover:text-cyan-400 font-tech">Projects</a>
                     <a href="#ai-playground" class="block px-3 py-2 text-base font-medium text-cyan-400 font-tech">AI Playground</a>
-                    <a href="AhmadMakki_AI-ML_Engineer.pdf" download class="mt-4 block text-center btn-neon px-4 py-3 rounded">Download Resume</a>
                 </div>
             </div>
         </nav>
@@ -992,6 +991,7 @@
             for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
             return bytes.buffer;
         }
+        
         function pcmToWav(pcmData, sampleRate) {
             const pcm16 = new Int16Array(pcmData);
             const wavHeader = new Uint8Array(44);
@@ -1140,7 +1140,7 @@
             };
 
             let isSpeaking = false, currentAudio = null;
-            // Track input mode
+            // Track input mode: 'text' or 'voice'
             let currentInputMode = 'text';
 
             const addMsg = (role, text) => {
@@ -1168,12 +1168,21 @@
                     if (!res.ok) throw new Error("TTS failed");
 
                     const data = await res.json();
-                    const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-                    if (audioData) {
-                        const wav = pcmToWav(base64ToArrayBuffer(audioData), 24000);
+                    const audioPart = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+                    
+                    if (audioPart && audioPart.data) {
+                        // Check mimeType for rate, default to 24000 if not found
+                        let sampleRate = 24000; 
+                        if (audioPart.mimeType) {
+                            const match = audioPart.mimeType.match(/rate=(\d+)/);
+                            if (match && match[1]) sampleRate = parseInt(match[1], 10);
+                        }
+                        
+                        const wav = pcmToWav(base64ToArrayBuffer(audioPart.data), sampleRate);
                         currentAudio = new Audio(URL.createObjectURL(wav));
                         isSpeaking = true;
                         aiStatus.textContent = "TRANSMITTING...";
+                        
                         currentAudio.onended = () => { 
                             isSpeaking = false; 
                             aiStatus.textContent = "ONLINE"; 
@@ -1219,13 +1228,10 @@
                     
                     addMsg('assistant', reply);
                     
-                    // Always play audio if response was triggered by voice, or if user wants it (optional)
-                    // Here we adhere to the prompt: if voice input -> spoken style reply.
-                    // We play audio for both, but the content style changes.
+                    // If user spoke, PLAY AUDIO. If typed, stick to text.
                     if (currentInputMode === 'voice') {
-                         playAudio(reply);
+                         await playAudio(reply);
                     } else {
-                         // For text, just reset status
                          aiStatus.textContent = "ONLINE";
                          aiStatus.classList.remove("text-cyan-400", "animate-pulse");
                     }
@@ -1237,7 +1243,7 @@
                 }
             };
 
-            // Reset to text mode when user types
+            // Reset to text mode when user types manually
             chatInput.addEventListener('input', () => {
                 currentInputMode = 'text';
             });
@@ -1248,6 +1254,7 @@
                 if(!q) return;
                 addMsg('user', q);
                 chatInput.value = '';
+                // If user pressed enter, they typed. If voice recognition submitted, currentInputMode is 'voice'
                 await fetchGeminiResponse(q);
             });
 
@@ -1262,6 +1269,10 @@
                 recognition.onstart = () => {
                     chatInput.placeholder = "Listening...";
                     voiceButton.classList.add("text-red-500", "animate-pulse");
+                    if (isSpeaking && currentAudio) { 
+                        currentAudio.pause(); 
+                        isSpeaking = false; 
+                    }
                 };
                 recognition.onend = () => {
                     chatInput.placeholder = "Input command...";
@@ -1270,12 +1281,11 @@
                 recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript;
                     chatInput.value = transcript;
-                    currentInputMode = 'voice'; // Set flag
-                    chatForm.requestSubmit();
+                    currentInputMode = 'voice'; // Important: Set mode to voice
+                    chatForm.requestSubmit(); // Auto-submit
                 };
 
                 voiceButton.addEventListener('click', () => {
-                    if (isSpeaking) { currentAudio.pause(); isSpeaking = false; }
                     recognition.start();
                 });
             } else {
@@ -1283,8 +1293,6 @@
             }
 
             // --- AI Playground Logic (All 3 Models) ---
-            
-            // Shared Elements
             let currentStream = null;
             let animationFrameId = null;
             let currentMode = null; // 'object', 'pose', 'seg'
