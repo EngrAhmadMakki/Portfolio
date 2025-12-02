@@ -244,16 +244,22 @@
                     </div>
                 </div>
 
-                <div class="flex-shrink-0 relative z-0 fade-in-load" style="transition-delay: 0.2s">
-                    <div class="absolute inset-0 bg-cyan-500/20 blur-[80px] rounded-full"></div>
-                    <div class="relative rounded-full p-2 border-2 border-dashed border-cyan-500/30 animate-[spin_10s_linear_infinite]"></div>
-                    <div class="relative -mt-[108%] rounded-full p-4 border border-cyan-500/50">
-                         <video src="AI_Avatar_Video_Generation.mp4" autoplay loop muted playsinline
-                                class="w-64 h-64 lg:w-80 lg:h-80 rounded-full object-cover shadow-[0_0_30px_rgba(34,211,238,0.4)] border-2 border-cyan-400/80">
-                        </video>
+                <div class="flex-1 flex justify-center lg:justify-end relative z-0 fade-in-load mt-8 lg:mt-0" style="transition-delay: 0.2s">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80 flex justify-center items-center">
+                        <div class="absolute inset-0 bg-cyan-500/20 blur-[60px] rounded-full"></div>
+                        <div class="absolute inset-0 rounded-full border-2 border-dashed border-cyan-500/30 animate-[spin_10s_linear_infinite]"></div>
+                        <div class="relative w-[90%] h-[90%] rounded-full border border-cyan-500/50 p-2 shadow-[0_0_30px_rgba(34,211,238,0.2)] bg-[#020617]">
+                            <div class="w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/80">
+                                <video
+                                    src="AI_Avatar_Video_Generation.mp4"
+                                    autoplay loop muted playsinline
+                                    class="w-full h-full object-cover transform scale-105"
+                                    poster="Ahmad_Makki_Pic.jpeg">
+                                </video>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
         </section>
 
         <!-- About Section -->
@@ -1464,6 +1470,7 @@
     <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 </body>
 </html>
+
 
 
 
